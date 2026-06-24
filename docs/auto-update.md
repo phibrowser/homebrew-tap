@@ -14,9 +14,10 @@ newer build appears, updates the cask, opens a PR, and auto-merges it to `main`.
 
 ## How
 
-The workflow `.github/workflows/update-cask.yml` runs daily (and on manual
-`workflow_dispatch`) on `macos-latest` — casks can only be linted/audited on
-macOS, and the runner already ships `brew`, `gh`, `xmllint`, and `shasum`.
+The workflow `.github/workflows/update-cask.yml` runs daily at 08:00 UTC (16:00
+Beijing time; GitHub cron is always UTC) — and on manual `workflow_dispatch` — on
+`macos-latest`: casks can only be linted/audited on macOS, and the runner already
+ships `brew`, `gh`, `xmllint`, and `shasum`.
 
 Steps:
 
