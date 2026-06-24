@@ -1,0 +1,109 @@
+name: Update Phi cask
+
+# Keeps Casks/phi.rb in sync with the Sparkle appcast. Runs daily; when a newer
+# release is published it bumps `version` + `sha256`, opens a PR and auto-merges it.
+# See docs/auto-update.md for the rationale and the one-time repo setting required.
+
+on:
+  schedule:
+    - cron: "0 16 * * *" # 16:00 UTC daily (~00:00 CST)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-cask
+  cancel-in-progress: false
+
+env:
+  APPCAST_URL: https://ota.phibrowser.com/mac-public/appcast/PhiBrowserMacUpdate.xml
+  RELEASE_BASE: https://ota.phibrowser.com/mac-public/releases
+
+jobs:
+  update:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve latest release from appcast
+        id: appcast
+        run: |
+          set -euo pipefail
+          xml="$(curl -fsSL "$APPCAST_URL")"
+          # Highest sparkle:version (build number) wins, regardless of item order.
+          build="$(printf '%s' "$xml" \
+            | xmllint --xpath '//item/*[local-name()="version"]/text()' - \
+            | sort -n | tail -1)"
+          short="$(printf '%s' "$xml" \
+            | xmllint --xpath "string(//item[*[local-name()=\"version\"]=\"$build\"]/*[local-name()=\"shortVersionString\"])" -)"
+          if [ -z "$build" ] || [ -z "$short" ]; then
+            echo "Failed to parse appcast (build='$build' short='$short')" >&2
+            exit 1
+          fi
+          echo "version=${short},${build}" >> "$GITHUB_OUTPUT"
+          echo "url=${RELEASE_BASE}/Phi_${short}_${build}.zip" >> "$GITHUB_OUTPUT"
+          echo "Latest appcast version: ${short},${build}"
+
+      - name: Compare with current cask
+        id: cmp
+        run: |
+          set -euo pipefail
+          current="$(grep -E '^[[:space:]]*version ' Casks/phi.rb | sed -E 's/.*"(.*)".*/\1/')"
+          echo "Current cask version: $current"
+          if [ "$current" = "${{ steps.appcast.outputs.version }}" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Cask already up to date; nothing to do."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Compute sha256
+        id: sha
+        if: steps.cmp.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          curl -fsSL -o phi.zip "${{ steps.appcast.outputs.url }}"
+          echo "sha256=$(shasum -a 256 phi.zip | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          rm -f phi.zip
+
+      - name: Update cask
+        if: steps.cmp.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          sed -i '' -E "s|^([[:space:]]*version ).*|\1\"${{ steps.appcast.outputs.version }}\"|" Casks/phi.rb
+          sed -i '' -E "s|^([[:space:]]*sha256 ).*|\1\"${{ steps.sha.outputs.sha256 }}\"|" Casks/phi.rb
+          echo "--- updated cask ---"
+          grep -E '^[[:space:]]*(version|sha256) ' Casks/phi.rb
+
+      - name: Validate cask
+        if: steps.cmp.outputs.changed == 'true'
+        run: brew style Casks/phi.rb
+
+      - name: Open PR and enable auto-merge
+        if: steps.cmp.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          version="${{ steps.appcast.outputs.version }}"
+          branch="autobump/phi-${version}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Idempotent: if the branch already exists remotely, a PR is already in flight.
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            echo "Branch $branch already exists; assuming PR is already open. Skipping."
+            exit 0
+          fi
+          git checkout -b "$branch"
+          git commit -am "Update Phi to ${version}"
+          git push -u origin "$branch"
+          gh pr create \
+            --base main --head "$branch" \
+            --title "Update Phi to ${version}" \
+            --body "Automated bump from the [Sparkle appcast](${APPCAST_URL}).
+
+          - version: \`${version}\`
+          - sha256: \`${{ steps.sha.outputs.sha256 }}\`"
+          gh pr merge --auto --squash --delete-branch "$branch"
