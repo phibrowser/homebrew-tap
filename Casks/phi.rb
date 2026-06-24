@@ -17,7 +17,7 @@ cask "phi" do
 
   auto_updates true
   depends_on arch:  :arm64,
-             macos: ">= :sonoma"
+             macos: :sonoma
 
   app "Phi.app"
 
