@@ -1,6 +1,6 @@
 cask "phi" do
-  version "1.5.1,609"
-  sha256 "1e98e023ff7aab074c495c2fdf75f6d121bacb304a79a32f8e0911abe4ddc316"
+  version "1.6.0,616"
+  sha256 "2e91521990f0762293f5c6f40dd7a6cef07c567b2b84af159528bd64185f928e"
 
   url "https://ota.phibrowser.com/mac-public/releases/Phi_#{version.csv.first}_#{version.csv.second}.zip"
   name "Phi"
@@ -9,7 +9,7 @@ cask "phi" do
   homepage "https://phibrowser.com/"
 
   livecheck do
-    url "https://ota.phibrowser.com/mac-public/appcast/PhiBrowserMacUpdate.xml"
+    url "https://ota.phibrowser.com/mac-public/appcast/v2/PhiBrowserMacUpdate.xml"
     strategy :sparkle do |item|
       "#{item.short_version},#{item.version}"
     end
