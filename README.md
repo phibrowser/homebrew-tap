@@ -41,3 +41,13 @@ brew uninstall --zap --cask phi    # also remove local data (caches, preferences
 This cask installs the same signed, Apple-notarized build distributed from
 <https://phibrowser.com/>. The download URL and version are kept in sync with the
 Sparkle appcast at `https://ota.phibrowser.com/mac-public/appcast/v2/PhiBrowserMacUpdate.xml`.
+
+## License
+
+The tap's packaging metadata — the cask definition, the GitHub Actions
+workflow, and the docs — is licensed under the [MIT License](LICENSE),
+copyright Phinomenon Inc.
+
+This license covers only the packaging metadata in this repository. The Phi
+Browser application it installs is a separate, proprietary product, and the
+"Phi" and "Phi Browser" names and logos are trademarks of Phinomenon Inc.
