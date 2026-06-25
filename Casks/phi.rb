@@ -21,12 +21,32 @@ cask "phi" do
 
   app "Phi.app"
 
+  uninstall quit: [
+    "com.phibrowser.Mac",
+    "com.phibrowser.Sentinel",
+  ]
+
   zap trash: [
-    "~/Library/Application Support/Phi",
+    "~/Library/Application Scripts/com.phibrowser.Sentinel",
+    "~/Library/Application Scripts/group.com.phibrowser.shared",
+    "~/Library/Application Support/com.phibrowser.Mac",
+    "~/Library/Application Support/com.phibrowser.Sentinel",
+    "~/Library/Application Support/com.phibrowser.TimeMachine/com.phibrowser.Mac",
     "~/Library/Caches/com.phibrowser.Mac",
-    "~/Library/Caches/Phi",
+    "~/Library/Caches/com.phibrowser.Sentinel",
+    "~/Library/Containers/com.phibrowser.Sentinel",
+    "~/Library/Group Containers/group.com.phibrowser.shared",
     "~/Library/HTTPStorages/com.phibrowser.Mac",
+    "~/Library/HTTPStorages/com.phibrowser.Mac.binarycookies",
+    "~/Library/HTTPStorages/com.phibrowser.Sentinel",
+    "~/Library/HTTPStorages/com.phibrowser.Sentinel.binarycookies",
+    "~/Library/LaunchAgents/com.phibrowser.Sentinel.runner.plist",
+    "~/Library/Logs/PhiBrowser",
+    "~/Library/Logs/PhiSentinel",
     "~/Library/Preferences/com.phibrowser.Mac.plist",
+    "~/Library/Preferences/com.phibrowser.Sentinel.plist",
     "~/Library/Saved Application State/com.phibrowser.Mac.savedState",
+    "~/Library/WebKit/com.phibrowser.Mac",
+    "~/Library/WebKit/com.phibrowser.Sentinel",
   ]
 end
