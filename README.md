@@ -41,7 +41,7 @@ brew uninstall --zap --cask phi    # also remove local data (caches, preferences
 This cask installs the same signed, Apple-notarized build distributed from
 <https://phibrowser.com/>. The download URL and version are kept in sync with the
 Sparkle appcast at
-`https://ota.phibrowser.com/mac-public/appcast/PhiBrowserMacUpdate.xml`.
+`https://ota.phibrowser.com/mac-public/appcast/v2/PhiBrowserMacUpdate.xml`.
 
 The cask metadata is bumped automatically: a daily GitHub Actions workflow checks
 the appcast and, on a new release, opens and auto-merges a PR updating `version`
