@@ -1,6 +1,6 @@
 cask "phi" do
-  version "2.1.0,661"
-  sha256 "33bda11e96d89594e41a302e8ad00ed8090cb246abf5a4de1546ba4780fc3a02"
+  version "2.1.1,671"
+  sha256 "dc73344b457d714fa6fff872729e1a3f4bf188f6a7188ef29ab3b45b33a4908e"
 
   url "https://ota.phibrowser.com/mac-public/releases/Phi_#{version.csv.first}_#{version.csv.second}.zip"
   name "Phi"
